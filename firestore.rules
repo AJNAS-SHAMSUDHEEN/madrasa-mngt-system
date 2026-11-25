@@ -1,0 +1,393 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: tenants
+    // Document ID: {tenantId} (auto-generated)
+    // Fields:
+    //   - id: string (required, == tenantId, immutable)
+    //   - name: string (required, 1..120 chars)
+    //   - slug: string (required, 1..140 chars)
+    //   - plan: string (required, 'starter' | 'pro' | 'enterprise')
+    //   - status: string (required, 'active' | 'suspended')
+    //   - adminEmail: string (required, valid email, <= 254 chars)
+    //   - createdAt: string | timestamp (required, immutable)
+    //
+    // Collection: users
+    // Document ID: {uid} (Firebase Auth UID)
+    // Fields:
+    //   - uid: string (required, == uid, immutable)
+    //   - tenantId: string (required, 1..128 chars, immutable except super_admin)
+    //   - name: string (required, 1..120 chars)
+    //   - email: string (required, valid email, <= 254 chars, immutable except super_admin)
+    //   - role: string (required, 'super_admin' | 'institution_admin' | 'teacher' | 'student', immutable except super_admin)
+    //   - createdAt: string | timestamp (required, immutable)
+    //
+    // Collection: classes
+    // Document ID: {classId} (auto-generated)
+    // Fields:
+    //   - id: string (required, == classId, immutable)
+    //   - tenantId: string (required, 1..128 chars, immutable)
+    //   - name: string (required, 1..120 chars)
+    //   - schedule: string (required, 1..160 chars)
+    //   - teacherId: string (required, 1..128 chars)
+    //   - teacherName: string (required, 1..120 chars)
+    //   - createdAt: string | timestamp (required, immutable)
+    //
+    // Collection: student_profiles
+    // Document ID: {profileId} (matches student's Firebase Auth UID)
+    // Fields:
+    //   - id: string (required, == profileId, immutable)
+    //   - tenantId: string (required, 1..128 chars, immutable)
+    //   - userId: string (required, == profileId, immutable)
+    //   - classId: string (required, 0..128 chars)
+    //   - rollNumber: string (required, 1..40 chars)
+    //   - name: string (required, 1..120 chars)
+    //   - email: string (required, valid email, <= 254 chars)
+    //   - guardianName: string (required, 0..120 chars)
+    //   - guardianPhone: string (required, 0..40 chars)
+    //   - dateOfBirth: string (required, 0..40 chars)
+    //   - address: string (required, 0..300 chars)
+    //   - enrollmentDate: string (required, 1..40 chars, immutable)
+    //   - notes: string (required, 0..1000 chars)
+    //   - status: string (required, 'active' | 'inactive')
+    //
+    // Collection: attendance_records
+    // Document ID: {recordId} (${tenantId}_${classId}_${studentId}_${date})
+    // Fields:
+    //   - id: string (required, == recordId, immutable)
+    //   - tenantId: string (required, 1..128 chars, immutable)
+    //   - classId: string (required, 1..128 chars, immutable)
+    //   - className: string (required, 1..120 chars)
+    //   - studentId: string (required, 1..128 chars, immutable)
+    //   - date: string (required, YYYY-MM-DD, 10 chars, immutable)
+    //   - status: string (required, 'present' | 'absent' | 'late' | 'excused')
+    //   - remarks: string (required, 0..500 chars)
+    //   - markedBy: string (required, 1..128 chars)
+    //   - markedByName: string (required, 1..120 chars)
+    //   - updatedAt: string | timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function userDocPath(uid) {
+      return /databases/$(database)/documents/users/$(uid);
+    }
+
+    function userDocExists() {
+      return isAuthenticated() && exists(userDocPath(request.auth.uid));
+    }
+
+    function userDoc() {
+      return get(userDocPath(request.auth.uid));
+    }
+
+    function userRole() {
+      return userDoc().data.role;
+    }
+
+    function userTenantId() {
+      return userDoc().data.tenantId;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        ('role' in request.auth.token && request.auth.token.role == 'super_admin') ||
+        (userDocExists() && userRole() == 'super_admin')
+      );
+    }
+
+    function isSameTenant(tenantId) {
+      return userDocExists() && userTenantId() == tenantId;
+    }
+
+    function isInstitutionAdmin(tenantId) {
+      return isSameTenant(tenantId) && userRole() == 'institution_admin';
+    }
+
+    function isTeacher(tenantId) {
+      return isSameTenant(tenantId) && userRole() == 'teacher';
+    }
+
+    function isStaff(tenantId) {
+      return isInstitutionAdmin(tenantId) || isTeacher(tenantId);
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function areImmutableFieldsUnchanged(fields) {
+      return !request.resource.data.diff(resource.data).affectedKeys().hasAny(fields);
+    }
+
+    function validStringLength(field, minLen, maxLen) {
+      return request.resource.data[field] is string &&
+        request.resource.data[field].size() >= minLen &&
+        request.resource.data[field].size() <= maxLen;
+    }
+
+    function isValidEmail(email) {
+      return email is string &&
+        email.size() >= 3 &&
+        email.size() <= 254 &&
+        email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidTimestampOrDateString(val) {
+      return val is timestamp ||
+        (val is string && val.size() >= 10 && val.size() <= 40);
+    }
+
+    function isValidIsoDateOnly(val) {
+      return val is string &&
+        val.size() == 10 &&
+        val.matches("^\\d{4}-\\d{2}-\\d{2}$");
+    }
+
+    // ===============================================================
+    // Domain Validators (Used in BOTH create and update)
+    // ===============================================================
+
+    function isValidTenant(data, tenantId) {
+      return hasRequiredFields(['id', 'name', 'slug', 'plan', 'status', 'adminEmail', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'name', 'slug', 'plan', 'status', 'adminEmail', 'createdAt']) &&
+        data.id is string && data.id == tenantId &&
+        validStringLength('name', 1, 120) &&
+        validStringLength('slug', 1, 140) &&
+        data.plan in ['starter', 'pro', 'enterprise'] &&
+        data.status in ['active', 'suspended'] &&
+        isValidEmail(data.adminEmail) &&
+        isValidTimestampOrDateString(data.createdAt);
+    }
+
+    function isValidUser(data, uid) {
+      return hasRequiredFields(['uid', 'tenantId', 'name', 'email', 'role', 'createdAt']) &&
+        hasOnlyAllowedFields(['uid', 'tenantId', 'name', 'email', 'role', 'createdAt']) &&
+        data.uid is string && data.uid == uid &&
+        validStringLength('tenantId', 1, 128) &&
+        validStringLength('name', 1, 120) &&
+        isValidEmail(data.email) &&
+        data.role in ['super_admin', 'institution_admin', 'teacher', 'student'] &&
+        isValidTimestampOrDateString(data.createdAt);
+    }
+
+    function isValidClass(data, classId) {
+      return hasRequiredFields(['id', 'tenantId', 'name', 'schedule', 'teacherId', 'teacherName', 'createdAt']) &&
+        hasOnlyAllowedFields(['id', 'tenantId', 'name', 'schedule', 'teacherId', 'teacherName', 'createdAt']) &&
+        data.id is string && data.id == classId &&
+        validStringLength('tenantId', 1, 128) &&
+        validStringLength('name', 1, 120) &&
+        validStringLength('schedule', 1, 160) &&
+        validStringLength('teacherId', 1, 128) &&
+        validStringLength('teacherName', 1, 120) &&
+        isValidTimestampOrDateString(data.createdAt);
+    }
+
+    function isValidStudentProfile(data, profileId) {
+      return hasRequiredFields([
+          'id', 'tenantId', 'userId', 'classId', 'rollNumber', 'name', 'email',
+          'guardianName', 'guardianPhone', 'dateOfBirth', 'address',
+          'enrollmentDate', 'notes', 'status'
+        ]) &&
+        hasOnlyAllowedFields([
+          'id', 'tenantId', 'userId', 'classId', 'rollNumber', 'name', 'email',
+          'guardianName', 'guardianPhone', 'dateOfBirth', 'address',
+          'enrollmentDate', 'notes', 'status'
+        ]) &&
+        data.id is string && data.id == profileId &&
+        validStringLength('tenantId', 1, 128) &&
+        data.userId is string && data.userId == profileId &&
+        validStringLength('classId', 0, 128) &&
+        validStringLength('rollNumber', 1, 40) &&
+        validStringLength('name', 1, 120) &&
+        isValidEmail(data.email) &&
+        validStringLength('guardianName', 0, 120) &&
+        validStringLength('guardianPhone', 0, 40) &&
+        validStringLength('dateOfBirth', 0, 40) &&
+        validStringLength('address', 0, 300) &&
+        validStringLength('enrollmentDate', 1, 40) &&
+        validStringLength('notes', 0, 1000) &&
+        data.status in ['active', 'inactive'];
+    }
+
+    function isValidAttendanceRecord(data, recordId) {
+      return hasRequiredFields([
+          'id', 'tenantId', 'classId', 'className', 'studentId', 'date',
+          'status', 'remarks', 'markedBy', 'markedByName', 'updatedAt'
+        ]) &&
+        hasOnlyAllowedFields([
+          'id', 'tenantId', 'classId', 'className', 'studentId', 'date',
+          'status', 'remarks', 'markedBy', 'markedByName', 'updatedAt'
+        ]) &&
+        data.id is string && data.id == recordId &&
+        validStringLength('tenantId', 1, 128) &&
+        validStringLength('classId', 1, 128) &&
+        validStringLength('className', 1, 120) &&
+        validStringLength('studentId', 1, 128) &&
+        isValidIsoDateOnly(data.date) &&
+        data.status in ['present', 'absent', 'late', 'excused'] &&
+        validStringLength('remarks', 0, 500) &&
+        validStringLength('markedBy', 1, 128) &&
+        validStringLength('markedByName', 1, 120) &&
+        isValidTimestampOrDateString(data.updatedAt);
+    }
+
+    // ===============================================================
+    // Collection Rules
+    // ===============================================================
+
+    // 1. Tenants
+    match /tenants/{tenantId} {
+      allow read: if isSuperAdmin() || isSameTenant(tenantId);
+
+      allow create: if isValidTenant(request.resource.data, tenantId) && (
+        isSuperAdmin() ||
+        (
+          isAuthenticated() &&
+          !userDocExists() &&
+          request.resource.data.status == 'active' &&
+          'email' in request.auth.token &&
+          request.auth.token.email != null &&
+          request.resource.data.adminEmail == request.auth.token.email
+        )
+      );
+
+      allow update: if isValidTenant(request.resource.data, tenantId) &&
+        areImmutableFieldsUnchanged(['id', 'createdAt']) && (
+          isSuperAdmin() ||
+          (
+            isInstitutionAdmin(tenantId) &&
+            request.resource.data.diff(resource.data).affectedKeys().hasOnly(['plan'])
+          )
+        );
+
+      allow delete: if false;
+    }
+
+    // 2. Users
+    match /users/{uid} {
+      allow read: if isOwner(uid) ||
+        isSuperAdmin() ||
+        isStaff(resource.data.tenantId);
+
+      allow create: if isValidUser(request.resource.data, uid) && (
+        isSuperAdmin() ||
+        (
+          isInstitutionAdmin(request.resource.data.tenantId) &&
+          request.resource.data.role in ['teacher', 'student']
+        ) ||
+        (
+          isTeacher(request.resource.data.tenantId) &&
+          request.resource.data.role == 'student'
+        ) ||
+        (
+          isOwner(uid) &&
+          !exists(userDocPath(uid)) &&
+          request.resource.data.role == 'institution_admin' &&
+          exists(/databases/$(database)/documents/tenants/$(request.resource.data.tenantId)) &&
+          'email' in request.auth.token &&
+          request.auth.token.email != null &&
+          get(/databases/$(database)/documents/tenants/$(request.resource.data.tenantId)).data.adminEmail == request.auth.token.email
+        )
+      );
+
+      allow update: if isValidUser(request.resource.data, uid) && (
+        (
+          isSuperAdmin() &&
+          areImmutableFieldsUnchanged(['uid', 'createdAt'])
+        ) ||
+        (
+          isStaff(resource.data.tenantId) &&
+          resource.data.role == 'student' &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+        )
+      );
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // 3. Classes
+    match /classes/{classId} {
+      allow read: if isSuperAdmin() || isSameTenant(resource.data.tenantId);
+
+      allow create: if isValidClass(request.resource.data, classId) && (
+        isSuperAdmin() ||
+        isStaff(request.resource.data.tenantId)
+      );
+
+      allow update: if isValidClass(request.resource.data, classId) &&
+        areImmutableFieldsUnchanged(['id', 'tenantId', 'createdAt']) && (
+          isSuperAdmin() ||
+          isStaff(resource.data.tenantId)
+        );
+
+      allow delete: if isSuperAdmin() || isStaff(resource.data.tenantId);
+    }
+
+    // 4. Student Profiles
+    match /student_profiles/{profileId} {
+      allow read: if isSuperAdmin() ||
+        isStaff(resource.data.tenantId) ||
+        (isOwner(resource.data.userId) && isSameTenant(resource.data.tenantId));
+
+      allow create: if isValidStudentProfile(request.resource.data, profileId) && (
+        isSuperAdmin() ||
+        isStaff(request.resource.data.tenantId)
+      );
+
+      allow update: if isValidStudentProfile(request.resource.data, profileId) &&
+        areImmutableFieldsUnchanged(['id', 'tenantId', 'userId', 'enrollmentDate']) && (
+          isSuperAdmin() ||
+          isStaff(resource.data.tenantId)
+        );
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // 5. Attendance Records
+    match /attendance_records/{recordId} {
+      allow read: if isSuperAdmin() ||
+        isStaff(resource.data.tenantId) ||
+        (isOwner(resource.data.studentId) && isSameTenant(resource.data.tenantId));
+
+      allow create: if isValidAttendanceRecord(request.resource.data, recordId) && (
+        isSuperAdmin() ||
+        isStaff(request.resource.data.tenantId)
+      );
+
+      allow update: if isValidAttendanceRecord(request.resource.data, recordId) &&
+        areImmutableFieldsUnchanged(['id', 'tenantId', 'classId', 'studentId', 'date']) && (
+          isSuperAdmin() ||
+          isStaff(resource.data.tenantId)
+        );
+
+      allow delete: if isSuperAdmin();
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
