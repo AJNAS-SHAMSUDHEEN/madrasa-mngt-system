@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ArrowRight,
   BarChart3,
@@ -9,57 +8,67 @@ import {
   Clock,
   FileText,
   GraduationCap,
-  HelpCircle,
   Lock,
   MessageCircle,
   Phone,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   UserCheck,
   Users,
 } from "lucide-react";
+import PublicNavbar from "@/components/PublicNavbar";
+import FaqAccordion from "@/components/FaqAccordion";
 
 const PROBLEMS = [
   {
+    num: "01",
     title: "Paper-Based Attendance Registers",
     desc: "Physical registers are easy to misplace, slow to review, and difficult to summarize across weeks or months.",
   },
   {
+    num: "02",
     title: "Scattered Student Records",
     desc: "Keeping enrollment details, guardian contacts, and class histories in separate notebooks makes retrieval slow.",
   },
   {
+    num: "03",
     title: "Manual Class & Teacher Coordination",
-    desc: "Assigning teachers to classes and tracking which students belong to which batch becomes error-prone as an institution grows.",
+    desc: "Assigning teachers to classes and tracking student batches becomes error-prone as an institution grows.",
   },
   {
+    num: "04",
     title: "Time-Consuming Administrative Work",
     desc: "Staff spend hours rewriting lists, checking attendance totals, and updating records manually.",
   },
   {
+    num: "05",
     title: "Difficulty Preparing Summaries",
-    desc: "Compiling class-wise or student-wise attendance overviews for committee meetings requires tedious manual counting.",
+    desc: "Compiling class-wise or student-wise attendance overviews for committee meetings requires tedious counting.",
   },
   {
+    num: "06",
     title: "Lack of Centralized Information",
-    desc: "When records sit with different individuals, leadership lacks a single reliable view of daily institutional operations.",
+    desc: "When records sit with different individuals, leadership lacks a single reliable view of daily operations.",
   },
   {
+    num: "07",
     title: "Communication & Coordination Gaps",
-    desc: "Administrators and teachers need a shared, structured system so everyone works from the same up-to-date information.",
+    desc: "Administrators and teachers need a shared, structured system so everyone works from up-to-date information.",
   },
   {
+    num: "08",
     title: "Limited Visibility into Daily Activity",
-    desc: "Without digital logs, it is hard for principals and committees to monitor daily attendance consistency across classes.",
+    desc: "Without digital logs, it is hard for principals and committees to monitor daily attendance consistency.",
   },
 ];
 
-const FEATURE_CATEGORIES = [
+const CORE_MODULES = [
   {
     code: "A",
     title: "Attendance Management",
     status: "Available Now",
-    statusStyle: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: ClipboardCheck,
     items: [
       "Daily student attendance marking (Present, Late, Absent, Excused)",
@@ -73,7 +82,7 @@ const FEATURE_CATEGORIES = [
     code: "B",
     title: "Student Management",
     status: "Available Now",
-    statusStyle: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: GraduationCap,
     items: [
       "Organized digital student profiles with roll numbers",
@@ -87,7 +96,7 @@ const FEATURE_CATEGORIES = [
     code: "C",
     title: "Class Management",
     status: "Available Now",
-    statusStyle: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: BookOpen,
     items: [
       "Class and batch creation with schedule details",
@@ -100,20 +109,20 @@ const FEATURE_CATEGORIES = [
     code: "D",
     title: "Teacher Management",
     status: "Available Now",
-    statusStyle: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: UserCheck,
     items: [
       "Institution-specific teacher accounts and profiles",
       "Centralized teacher onboarding by Madrasa Administrators",
       "Clear class assignments and teaching responsibilities",
-      "Focused workspace showing assigned attendance and student tools",
+      "Focused workspace showing attendance and student tools",
     ],
   },
   {
     code: "E",
     title: "Institution Management",
     status: "Available Now",
-    statusStyle: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: Building2,
     items: [
       "Dedicated workspace for each registered Madrasa",
@@ -123,29 +132,32 @@ const FEATURE_CATEGORIES = [
     ],
   },
   {
-    code: "F",
-    title: "Reports & Analytics",
-    status: "Partially Available",
-    statusStyle: "bg-amber-100 text-amber-800 border-amber-200",
-    icon: BarChart3,
-    items: [
-      "Available: Live attendance rate percentages and status breakdowns",
-      "Available: Institution-level totals for students, teachers, and classes",
-      "Available: Student-level attendance history filtering",
-      "Planned: Downloadable PDF/CSV reports and advanced class-wise exports",
-    ],
-  },
-  {
     code: "G",
     title: "User & Role Management",
     status: "Available Now",
-    statusStyle: "bg-emerald-100 text-emerald-800 border-emerald-200",
+    statusStyle: "bg-emerald-50 text-emerald-700 border-emerald-200",
     icon: Users,
     items: [
       "Super Admin: Platform-level institution governance and workspace status",
       "Madrasa Admin: Full management of their own institution, teachers, and classes",
       "Teacher: Attendance marking and student profile management",
       "Student: Read-only access to personal profile and attendance records",
+    ],
+  },
+];
+
+const ROADMAP_MODULES = [
+  {
+    code: "F",
+    title: "Reports & Analytics",
+    status: "Partially Available",
+    statusStyle: "bg-amber-50 text-amber-800 border-amber-200",
+    icon: BarChart3,
+    items: [
+      "Available: Live attendance rate percentages and status breakdowns",
+      "Available: Institution-level totals for students, teachers, and classes",
+      "Available: Student-level attendance history filtering",
+      "Planned: Downloadable PDF/CSV reports and advanced class-wise exports",
     ],
   },
   {
@@ -194,7 +206,7 @@ const FAQS = [
   },
   {
     q: "How can a Madrasa register?",
-    a: "You can contact our team by phone or WhatsApp on 8921202909 to schedule a demonstration and receive guided onboarding assistance, or explore the workspace signup flow with our team.",
+    a: "You can contact our team by phone or WhatsApp on 8921202909 to schedule a demonstration and receive guided onboarding assistance.",
   },
   {
     q: "Is a product demonstration available?",
@@ -212,133 +224,185 @@ const FAQS = [
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
-      {/* Top Navbar */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/95 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 gap-4">
-          <Link href="/" className="flex items-center gap-2.5 font-bold text-base sm:text-lg text-slate-900">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-sm shrink-0">
-              <ClipboardCheck className="h-5 w-5" />
-            </span>
-            <span className="leading-tight">Madrasa Management System</span>
-          </Link>
-
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-600">
-            <a href="#about" className="hover:text-emerald-700 transition">About</a>
-            <a href="#features" className="hover:text-emerald-700 transition">Features</a>
-            <a href="#security" className="hover:text-emerald-700 transition">Security</a>
-            <a href="#how-it-works" className="hover:text-emerald-700 transition">How It Works</a>
-            <a href="#faq" className="hover:text-emerald-700 transition">FAQ</a>
-            <a href="#contact" className="hover:text-emerald-700 transition">Contact</a>
-          </nav>
-
-          <div className="flex items-center gap-2.5">
-            <Link
-              href="/login"
-              className="rounded-lg px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 transition"
-            >
-              Sign In
-            </Link>
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 transition"
-            >
-              Request a Free Demo
-            </a>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+      <PublicNavbar />
 
       <main className="flex-1">
         {/* 1. HERO SECTION */}
-        <section className="border-b border-slate-200 bg-gradient-to-b from-white to-slate-50">
-          <div className="mx-auto max-w-6xl px-6 py-16 sm:py-24 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1.5 text-xs font-semibold text-emerald-800 mb-6">
-              <Building2 className="h-3.5 w-3.5" />
-              Dedicated Multi-Institution SaaS for Madrasas
+        <section className="relative overflow-hidden border-b border-slate-200/80 bg-white">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.08),transparent_55%),radial-gradient(circle_at_bottom_left,rgba(15,23,42,0.03),transparent_50%)]" />
+          <div className="relative mx-auto max-w-6xl px-6 py-16 sm:py-24">
+            <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+              <div className="lg:col-span-7">
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/80 px-3.5 py-1.5 text-xs font-semibold text-emerald-800 mb-6">
+                  <Building2 className="h-3.5 w-3.5" />
+                  Multi-Institution SaaS for Islamic Education
+                </div>
+                <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-[3.25rem] leading-[1.12]">
+                  Organized Daily Administration for Modern Madrasa Institutions
+                </h1>
+                <p className="mt-6 max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
+                  Replace scattered paper registers with a centralized platform built
+                  specifically for Madrasas. Coordinate administrators and teachers cleanly,
+                  maintain organized student and attendance records, and access daily
+                  institutional activities from any desktop or mobile browser.
+                </p>
+
+                <div className="mt-8 flex flex-wrap items-center gap-3.5">
+                  <a
+                    href="#contact"
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 transition"
+                  >
+                    Request a Free Demo
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                  <a
+                    href="tel:8921202909"
+                    className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-3.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 transition"
+                  >
+                    <Phone className="h-4 w-4 text-emerald-700" />
+                    Contact Our Team
+                  </a>
+                  <a
+                    href="#features"
+                    className="inline-flex items-center gap-1.5 rounded-xl px-4 py-3.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 transition"
+                  >
+                    Explore Features
+                  </a>
+                </div>
+              </div>
+
+              {/* Product Structure Preview Card */}
+              <div className="lg:col-span-5">
+                <div className="rounded-3xl border border-slate-200/90 bg-slate-50/90 p-5 shadow-xl shadow-slate-200/50">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
+                      <div>
+                        <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-700">
+                          Centralized Workspace
+                        </p>
+                        <h2 className="text-sm font-bold text-slate-900">
+                          Role-Based Daily Operations
+                        </h2>
+                      </div>
+                      <span className="rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
+                        Multi-Tenant
+                      </span>
+                    </div>
+
+                    <div className="space-y-2.5">
+                      {[
+                        {
+                          role: "Madrasa Admin",
+                          scope: "Manages teachers, classes & institution workspace",
+                          badge: "Institution Scope",
+                        },
+                        {
+                          role: "Teacher",
+                          scope: "Marks daily attendance & maintains student profiles",
+                          badge: "Class Scope",
+                        },
+                        {
+                          role: "Student",
+                          scope: "Views personal profile & attendance history",
+                          badge: "Self-Service",
+                        },
+                        {
+                          role: "Super Admin",
+                          scope: "Oversees platform institutions & workspace status",
+                          badge: "Platform Scope",
+                        },
+                      ].map((row) => (
+                        <div
+                          key={row.role}
+                          className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50/70 px-3.5 py-2.5"
+                        >
+                          <div className="min-w-0">
+                            <div className="text-xs font-bold text-slate-900">{row.role}</div>
+                            <div className="text-[11px] text-slate-500 truncate">{row.scope}</div>
+                          </div>
+                          <span className="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-600 shrink-0">
+                            {row.badge}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <h1 className="mx-auto max-w-4xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl leading-tight">
-              Organized Daily Administration for Modern Madrasa Institutions
-            </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base sm:text-lg text-slate-600 leading-relaxed">
-              Replace scattered paper registers with a centralized, easy-to-use platform built
-              specifically for Madrasas. Coordinate administrators and teachers effortlessly,
-              maintain accurate student and attendance records, and access institutional
-              activities from any desktop or mobile device.
-            </p>
-            <div className="mt-9 flex flex-wrap items-center justify-center gap-3.5">
-              <a
-                href="#contact"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition"
-              >
-                Request a Free Demo
-                <ArrowRight className="h-4 w-4" />
-              </a>
-              <a
-                href="tel:8921202909"
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 transition"
-              >
-                <Phone className="h-4 w-4 text-emerald-700" />
-                Contact Our Team
-              </a>
-              <a
-                href="#features"
-                className="inline-flex items-center gap-2 rounded-xl px-5 py-3.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 transition"
-              >
-                Explore Features
-              </a>
+          </div>
+
+          {/* Core Architecture Strip */}
+          <div className="border-t border-slate-100 bg-slate-50/70">
+            <div className="mx-auto max-w-6xl px-6 py-4 grid grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-medium text-slate-600">
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-emerald-700 shrink-0" />
+                <span>Institution-Level Data Isolation</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-emerald-700 shrink-0" />
+                <span>Backend Security Rules Enforcement</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-emerald-700 shrink-0" />
+                <span>Dedicated Role-Based Access</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Smartphone className="h-4 w-4 text-emerald-700 shrink-0" />
+                <span>Desktop & Mobile Web Access</span>
+              </div>
             </div>
           </div>
         </section>
 
         {/* 2. ABOUT THE PLATFORM */}
-        <section id="about" className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
+        <section id="about" className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-6">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                 About the Platform
               </span>
-              <h2 className="mt-2 text-3xl font-bold text-slate-900">
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
                 Built Specifically for Madrasa Administration—Not a Generic School Tool
               </h2>
               <p className="mt-4 text-slate-600 leading-relaxed">
-                Madrasa Management System was created to support Islamic educational
+                Madrasa Management System was developed to support Islamic educational
                 institutions that need a practical, dependable way to manage daily
-                operations without the complexity of oversized enterprise school software.
+                operations without the bloat of generic school software.
               </p>
               <p className="mt-3 text-slate-600 leading-relaxed">
-                Many Madrasas still rely on handwritten registers and disconnected files to
-                track attendance, student details, and class assignments. Our vision is to
-                bring simple, accessible digital administration to every Madrasa—helping
-                committees, principals, and teachers spend less time on paperwork and more
-                time supporting students.
+                Many Madrasas still rely on handwritten registers and disconnected files for
+                attendance, student records, and class coordination. Our commitment is to
+                provide simple, accessible digital tools that help administrators and
+                teachers focus on education rather than paperwork.
               </p>
             </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="lg:col-span-6 grid gap-4 sm:grid-cols-2">
               {[
                 {
                   title: "Purpose-Built Workflows",
-                  desc: "Focused on the core daily realities of Madrasa classes, teachers, and student oversight.",
+                  desc: "Focused on daily attendance, student records, classes, and teacher coordination.",
                 },
                 {
-                  title: "Clear Coordination",
-                  desc: "Connects Madrasa Administrators and teachers in one shared, structured workspace.",
+                  title: "Clear Staff Alignment",
+                  desc: "Administrators and teachers work from one shared, up-to-date digital source.",
                 },
                 {
-                  title: "Simple & Accessible",
-                  desc: "Designed so staff can adopt digital attendance and records without heavy training.",
+                  title: "Accessible Technology",
+                  desc: "Clean interface designed for practical everyday use with minimal learning curve.",
                 },
                 {
                   title: "Multi-Institution Ready",
-                  desc: "Supports individual Madrasas as well as organizations overseeing multiple branches.",
+                  desc: "Supports single Madrasas as well as organizations managing multiple institutions.",
                 },
               ].map((card) => (
                 <div
                   key={card.title}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm hover:border-emerald-300 transition"
                 >
                   <h3 className="font-bold text-slate-900 text-sm">{card.title}</h3>
-                  <p className="mt-1.5 text-xs text-slate-600 leading-relaxed">{card.desc}</p>
+                  <p className="mt-2 text-xs text-slate-600 leading-relaxed">{card.desc}</p>
                 </div>
               ))}
             </div>
@@ -346,28 +410,31 @@ export default function HomePage() {
         </section>
 
         {/* 3. THE PROBLEMS WE SOLVE */}
-        <section className="border-y border-slate-200 bg-white py-16 sm:py-20">
+        <section className="border-y border-slate-200 bg-white py-20">
           <div className="mx-auto max-w-6xl px-6">
             <div className="max-w-2xl">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                 The Problems We Solve
               </span>
-              <h2 className="mt-2 text-3xl font-bold text-slate-900">
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
                 Addressing Everyday Administrative Challenges in Madrasas
               </h2>
-              <p className="mt-3 text-slate-600">
-                A centralized digital workspace helps institutions move past manual bottlenecks
-                and maintain clear, reliable records across every class.
+              <p className="mt-3 text-slate-600 leading-relaxed">
+                A centralized digital platform helps institutions move beyond manual registers
+                and maintain organized, accessible records across every class.
               </p>
             </div>
 
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {PROBLEMS.map((item) => (
                 <div
-                  key={item.title}
-                  className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5"
+                  key={item.num}
+                  className="rounded-2xl border border-slate-200 bg-slate-50/70 p-5 hover:bg-white hover:shadow-sm transition"
                 >
-                  <h3 className="font-bold text-slate-900 text-sm">{item.title}</h3>
+                  <span className="font-mono text-xs font-bold text-emerald-700">
+                    {item.num}
+                  </span>
+                  <h3 className="mt-2 font-bold text-slate-900 text-sm">{item.title}</h3>
                   <p className="mt-2 text-xs text-slate-600 leading-relaxed">{item.desc}</p>
                 </div>
               ))}
@@ -376,27 +443,27 @@ export default function HomePage() {
         </section>
 
         {/* 4. PLATFORM FEATURES */}
-        <section id="features" className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+        <section id="features" className="mx-auto max-w-6xl px-6 py-20">
           <div className="text-center max-w-2xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
-              Platform Capabilities
+              Platform Features
             </span>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">
-              Transparent Overview of Available & Planned Features
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+              Clear Distinction Between Available & Planned Capabilities
             </h2>
             <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              We believe in complete clarity. Each module below clearly indicates what is
-              currently available and what is planned for future releases.
+              Explore the modules ready for immediate institutional use alongside our planned
+              future enhancements.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 md:grid-cols-2">
-            {FEATURE_CATEGORIES.map((cat) => {
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {CORE_MODULES.map((cat) => {
               const Icon = cat.icon;
               return (
                 <div
                   key={cat.code}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col"
+                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col hover:border-emerald-300 transition"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
@@ -407,7 +474,7 @@ export default function HomePage() {
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
                           Module {cat.code}
                         </span>
-                        <h3 className="text-lg font-bold text-slate-900">{cat.title}</h3>
+                        <h3 className="text-base font-bold text-slate-900">{cat.title}</h3>
                       </div>
                     </div>
                     <span
@@ -417,7 +484,7 @@ export default function HomePage() {
                     </span>
                   </div>
 
-                  <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                  <ul className="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-600">
                     {cat.items.map((item) => (
                       <li key={item} className="flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -429,88 +496,115 @@ export default function HomePage() {
               );
             })}
           </div>
+
+          {/* Reporting & Roadmap Modules */}
+          <div className="mt-6 grid gap-6 md:grid-cols-2">
+            {ROADMAP_MODULES.map((cat) => {
+              const Icon = cat.icon;
+              return (
+                <div
+                  key={cat.code}
+                  className="rounded-2xl border border-dashed border-slate-300 bg-white/80 p-6 flex flex-col"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-700 shrink-0">
+                        <Icon className="h-5 w-5" />
+                      </span>
+                      <div>
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                          Module {cat.code}
+                        </span>
+                        <h3 className="text-base font-bold text-slate-900">{cat.title}</h3>
+                      </div>
+                    </div>
+                    <span
+                      className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold shrink-0 ${cat.statusStyle}`}
+                    >
+                      {cat.status}
+                    </span>
+                  </div>
+
+                  <ul className="mt-5 space-y-2.5 text-xs sm:text-sm text-slate-600">
+                    {cat.items.map((item) => (
+                      <li key={item} className="flex items-start gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-slate-400 shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </div>
         </section>
 
         {/* 5. WHO CAN USE THIS PLATFORM? */}
-        <section className="border-y border-slate-200 bg-white py-16 sm:py-20">
+        <section className="border-y border-slate-200 bg-white py-20">
           <div className="mx-auto max-w-6xl px-6">
             <div className="text-center max-w-2xl mx-auto">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                 Who Can Use This Platform?
               </span>
-              <h2 className="mt-2 text-3xl font-bold text-slate-900">
-                Tailored Value for Every Institutional Role
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
+                Designed Around Real Institutional Responsibilities
               </h2>
             </div>
 
-            <div className="mt-10 grid gap-6 md:grid-cols-3">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                <h3 className="text-lg font-bold text-slate-900">
-                  Madrasa Management Committee
-                </h3>
-                <ul className="mt-4 space-y-2.5 text-sm text-slate-600">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Better institutional organization and record continuity</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Easier administrative oversight across classes</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Access to clear institutional attendance summaries</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                <h3 className="text-lg font-bold text-slate-900">Madrasa Administrators</h3>
-                <ul className="mt-4 space-y-2.5 text-sm text-slate-600">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Centralized workspace for teachers, classes, and students</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Easier coordination of class schedules and assignments</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Organized, searchable institutional records</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-                <h3 className="text-lg font-bold text-slate-900">Teachers</h3>
-                <ul className="mt-4 space-y-2.5 text-sm text-slate-600">
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Convenient access to assigned classes from phone or desktop</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Simplified daily attendance marking with remarks</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
-                    <span>Quick access to student profiles and attendance history</span>
-                  </li>
-                </ul>
-              </div>
+            <div className="mt-12 grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  title: "Madrasa Management Committee",
+                  points: [
+                    "Better institutional organization and record continuity",
+                    "Easier administrative oversight across classes",
+                    "Access to clear institutional attendance summaries",
+                  ],
+                },
+                {
+                  title: "Madrasa Administrators",
+                  points: [
+                    "Centralized workspace for teachers, classes, and students",
+                    "Easier coordination of class schedules and assignments",
+                    "Organized, searchable institutional records",
+                  ],
+                },
+                {
+                  title: "Teachers",
+                  points: [
+                    "Convenient access to assigned classes from phone or desktop",
+                    "Simplified daily attendance marking with remarks",
+                    "Quick access to student profiles and attendance history",
+                  ],
+                },
+              ].map((group) => (
+                <div
+                  key={group.title}
+                  className="rounded-2xl border border-slate-200 bg-slate-50/70 p-6 shadow-sm"
+                >
+                  <h3 className="text-lg font-bold text-slate-900">{group.title}</h3>
+                  <ul className="mt-4 space-y-3 text-sm text-slate-600">
+                    {group.points.map((pt) => (
+                      <li key={pt} className="flex items-start gap-2.5">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{pt}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           </div>
         </section>
 
         {/* 6. KEY BENEFITS & 9. WHY CHOOSE OUR PLATFORM */}
-        <section className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
-          <div className="grid gap-10 lg:grid-cols-2">
-            <div>
+        <section className="mx-auto max-w-6xl px-6 py-20">
+          <div className="grid gap-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
                 Key Benefits
               </span>
-              <h2 className="mt-2 text-3xl font-bold text-slate-900">
+              <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
                 Practical Advantages for Daily Operations
               </h2>
               <div className="mt-6 grid gap-3 sm:grid-cols-2 text-sm">
@@ -527,7 +621,7 @@ export default function HomePage() {
                 ].map((benefit) => (
                   <div
                     key={benefit}
-                    className="flex items-start gap-2 rounded-xl border border-slate-200 bg-white p-3.5"
+                    className="flex items-start gap-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
                   >
                     <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span className="text-slate-700 font-medium">{benefit}</span>
@@ -536,7 +630,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-7">
+            <div className="lg:col-span-5 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-7 shadow-sm flex flex-col justify-center">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
                 Why Choose Our Platform
               </span>
@@ -545,13 +639,13 @@ export default function HomePage() {
               </h3>
               <ul className="mt-5 space-y-3 text-sm text-slate-700">
                 {[
-                  "Dedicated focus on Madrasa institutions and Islamic educational administration",
-                  "Simple, practical workflows that require minimal technical familiarity",
-                  "Separate role-based experiences for Super Admin, Madrasa Admin, Teacher, and Student",
-                  "Centralized institutional workspace with isolated records",
+                  "Dedicated focus on Madrasa institutions",
+                  "Simple and practical daily workflows",
+                  "Separate role-based experiences for every user group",
+                  "Centralized institutional administration",
                   "Continuous, transparent product improvement",
                   "Scalable multi-institution SaaS architecture",
-                  "Privacy-first design with responsible data access controls",
+                  "Privacy-first design with responsible data access",
                 ].map((point) => (
                   <li key={point} className="flex items-start gap-2.5">
                     <ShieldCheck className="h-4 w-4 text-emerald-700 shrink-0 mt-0.5" />
@@ -564,26 +658,26 @@ export default function HomePage() {
         </section>
 
         {/* 7. SECURITY & PRIVACY */}
-        <section id="security" className="border-y border-slate-200 bg-slate-900 text-white py-16 sm:py-20">
+        <section id="security" className="bg-slate-950 text-white py-20">
           <div className="mx-auto max-w-6xl px-6">
             <div className="max-w-2xl">
               <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
                 Security & Privacy
               </span>
-              <h2 className="mt-2 text-3xl font-bold">
+              <h2 className="mt-2 text-3xl font-bold tracking-tight">
                 Privacy-First Architecture Enforced at the Database Level
               </h2>
-              <p className="mt-3 text-slate-300 text-sm sm:text-base">
-                Institutional records are sensitive. Security is enforced through backend
-                database rules—not just hidden buttons in the user interface.
+              <p className="mt-3 text-slate-300 text-sm sm:text-base leading-relaxed">
+                Institutional records are sensitive. Access control is enforced through
+                backend database security rules—not only through interface restrictions.
               </p>
             </div>
 
-            <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {[
                 {
                   title: "Institution-Level Data Isolation",
-                  desc: "Every Madrasa operates inside its own tenant boundary so records never leak across institutions.",
+                  desc: "Every Madrasa operates within its own tenant boundary so records remain separated across institutions.",
                 },
                 {
                   title: "Role-Based Access Control",
@@ -591,24 +685,24 @@ export default function HomePage() {
                 },
                 {
                   title: "Scoped Teacher & Admin Access",
-                  desc: "Madrasa Administrators manage only their own institution, while Teachers access their institutional teaching and attendance duties.",
+                  desc: "Madrasa Administrators manage only their own institution, while Teachers access their institutional responsibilities.",
                 },
                 {
                   title: "Governed Super Admin Scope",
-                  desc: "Super Admin access is focused on platform-level administration, institution metadata, and aggregate summaries.",
+                  desc: "Super Admin access is limited to platform-level administration, institution metadata, and aggregate summaries.",
                 },
                 {
                   title: "Protected Student & Staff Records",
-                  desc: "Student profiles and attendance logs are restricted to authorized staff and the individual student.",
+                  desc: "Student profiles and attendance logs are restricted to authorized institutional staff and the individual student.",
                 },
                 {
                   title: "Backend Rules Enforcement",
-                  desc: "Database security rules validate authentication, institution membership, and role permissions on every read and write.",
+                  desc: "Database security rules validate authentication, institution membership, and role permissions on every request.",
                 },
               ].map((sec) => (
                 <div
                   key={sec.title}
-                  className="rounded-2xl border border-slate-800 bg-slate-800/60 p-5"
+                  className="rounded-2xl border border-slate-800 bg-slate-900/90 p-6"
                 >
                   <Lock className="h-5 w-5 text-emerald-400 mb-3" />
                   <h3 className="font-bold text-white text-sm">{sec.title}</h3>
@@ -620,40 +714,40 @@ export default function HomePage() {
         </section>
 
         {/* 8. HOW THE PLATFORM WORKS */}
-        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
+        <section id="how-it-works" className="mx-auto max-w-6xl px-6 py-20">
           <div className="text-center max-w-2xl mx-auto">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
               How the Platform Works
             </span>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
               Guided Onboarding for Your Madrasa
             </h2>
             <p className="mt-3 text-slate-600 text-sm sm:text-base">
-              We support each institution step by step from initial inquiry to daily use.
+              We assist each institution step by step from initial inquiry to daily use.
             </p>
           </div>
 
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 step: "01",
                 title: "Contact Our Team",
-                desc: "Reach out to our team by phone or WhatsApp to share your Madrasa's needs.",
+                desc: "Reach out by phone or WhatsApp to share your Madrasa's administrative requirements.",
               },
               {
                 step: "02",
                 title: "Request a Demonstration",
-                desc: "See a live walkthrough of administrator, teacher, and student workflows.",
+                desc: "Review a live walkthrough of administrator, teacher, and student workflows.",
               },
               {
                 step: "03",
                 title: "Receive Onboarding Assistance",
-                desc: "Our team assists your institution with setting up your dedicated workspace.",
+                desc: "Our team helps configure your Madrasa's dedicated workspace.",
               },
               {
                 step: "04",
                 title: "Create Authorized Accounts",
-                desc: "Madrasa Administrator and teacher accounts are provisioned for your staff.",
+                desc: "Madrasa Administrator and teacher accounts are set up for your staff.",
               },
               {
                 step: "05",
@@ -663,130 +757,123 @@ export default function HomePage() {
               {
                 step: "06",
                 title: "Gradual Adoption",
-                desc: "Start with classes, student profiles, and daily attendance at your own pace.",
+                desc: "Begin with classes, student profiles, and daily attendance at a comfortable pace.",
               },
             ].map((s) => (
               <div
                 key={s.step}
                 className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
               >
-                <span className="inline-block rounded-lg bg-emerald-50 px-2.5 py-1 font-mono text-xs font-bold text-emerald-700">
+                <span className="inline-block rounded-lg bg-emerald-50 border border-emerald-200 px-2.5 py-1 font-mono text-xs font-bold text-emerald-700">
                   Step {s.step}
                 </span>
                 <h3 className="mt-3 font-bold text-slate-900">{s.title}</h3>
-                <p className="mt-1.5 text-sm text-slate-600">{s.desc}</p>
+                <p className="mt-1.5 text-sm text-slate-600 leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* 10. DEMO REQUEST */}
-        <section className="border-y border-slate-200 bg-emerald-50/50 py-14">
-          <div className="mx-auto max-w-5xl px-6 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
-            <div className="max-w-xl">
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
-                Personal Product Demonstration
-              </span>
-              <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">
-                See How the Platform Fits Your Madrasa Before You Decide
-              </h2>
-              <p className="mt-3 text-sm text-slate-600">
-                During a personal demo, our team walks your committee or principal through:
-              </p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2 text-xs text-slate-700 font-medium">
-                <li className="flex items-center gap-1.5">
-                  <Clock className="h-3.5 w-3.5 text-emerald-700" />
-                  How the platform works day-to-day
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-emerald-700" />
-                  How administrators manage records
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <UserCheck className="h-3.5 w-3.5 text-emerald-700" />
-                  How teachers record attendance
-                </li>
-                <li className="flex items-center gap-1.5">
-                  <FileText className="h-3.5 w-3.5 text-emerald-700" />
-                  Which modules are available today
-                </li>
-              </ul>
-            </div>
-            <div className="shrink-0">
-              <a
-                href="https://wa.me/8921202909"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition"
-              >
-                <MessageCircle className="h-4 w-4" />
-                Request a Demo
-              </a>
+        <section className="border-y border-slate-200 bg-white py-16">
+          <div className="mx-auto max-w-5xl px-6">
+            <div className="rounded-3xl border border-emerald-200 bg-emerald-50/50 p-8 sm:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+              <div className="max-w-xl">
+                <span className="text-xs font-bold uppercase tracking-wider text-emerald-800">
+                  Personal Product Demonstration
+                </span>
+                <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">
+                  See How the Platform Fits Your Madrasa Before You Decide
+                </h2>
+                <p className="mt-3 text-sm text-slate-600">
+                  During a personal demo, our team walks your committee or principal through:
+                </p>
+                <ul className="mt-4 grid gap-2.5 sm:grid-cols-2 text-xs text-slate-700 font-medium">
+                  <li className="flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-emerald-700 shrink-0" />
+                    How the platform works day-to-day
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Users className="h-4 w-4 text-emerald-700 shrink-0" />
+                    How administrators manage records
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <UserCheck className="h-4 w-4 text-emerald-700 shrink-0" />
+                    How teachers record attendance
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-emerald-700 shrink-0" />
+                    Which modules are available today
+                  </li>
+                </ul>
+              </div>
+              <div className="shrink-0">
+                <a
+                  href="https://wa.me/8921202909"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-700 px-6 py-3.5 text-sm font-semibold text-white shadow-md hover:bg-emerald-800 transition"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Request a Demo
+                </a>
+              </div>
             </div>
           </div>
         </section>
 
         {/* 11. FREQUENTLY ASKED QUESTIONS */}
-        <section id="faq" className="mx-auto max-w-4xl px-6 py-16 sm:py-20">
+        <section id="faq" className="mx-auto max-w-4xl px-6 py-20">
           <div className="text-center mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-emerald-700">
               Frequently Asked Questions
             </span>
-            <h2 className="mt-2 text-3xl font-bold text-slate-900">
+            <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">
               Clear Answers for Committees & Administrators
             </h2>
           </div>
 
-          <div className="space-y-4">
-            {FAQS.map((faq) => (
-              <div
-                key={faq.q}
-                className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
-                <h3 className="flex items-start gap-2.5 font-bold text-slate-900 text-sm sm:text-base">
-                  <HelpCircle className="h-5 w-5 text-emerald-700 shrink-0 mt-0.5" />
-                  <span>{faq.q}</span>
-                </h3>
-                <p className="mt-2 pl-7 text-sm text-slate-600 leading-relaxed">{faq.a}</p>
-              </div>
-            ))}
-          </div>
+          <FaqAccordion items={FAQS} />
         </section>
 
         {/* 12. CONTACT INFORMATION & 13. FINAL CALL TO ACTION */}
-        <section id="contact" className="border-t border-slate-200 bg-emerald-900 text-white py-16">
-          <div className="mx-auto max-w-5xl px-6 text-center space-y-6">
+        <section
+          id="contact"
+          className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-900 text-white py-20"
+        >
+          <div className="mx-auto max-w-4xl px-6 text-center space-y-6">
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
               Step Into Organized, Reliable Administration for Your Madrasa
             </h2>
-            <p className="mx-auto max-w-2xl text-emerald-100 text-sm sm:text-base leading-relaxed">
-              Connect with our team to request a personal demonstration, ask about institutional
-              onboarding, or learn how the platform can support your Madrasa&apos;s daily work.
+            <p className="mx-auto max-w-2xl text-emerald-100/90 text-sm sm:text-base leading-relaxed">
+              Connect with our team to request a personal demonstration, ask about
+              institutional onboarding, or learn how the platform can support your
+              Madrasa&apos;s daily administration.
             </p>
 
-            <div className="inline-flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-emerald-700 bg-emerald-800/70 px-6 py-4">
+            <div className="inline-flex flex-col sm:flex-row items-center gap-3 rounded-2xl border border-emerald-700/80 bg-emerald-900/60 px-7 py-4 backdrop-blur-sm">
               <span className="text-xs font-semibold uppercase tracking-wider text-emerald-200">
                 Official Phone / WhatsApp
               </span>
               <a
                 href="tel:8921202909"
-                className="text-2xl font-extrabold tracking-wide text-white hover:underline"
+                className="text-2xl sm:text-3xl font-extrabold tracking-wide text-white hover:underline"
               >
                 8921202909
               </a>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
               <a
                 href="tel:8921202909"
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-bold text-emerald-900 shadow-sm hover:bg-emerald-50 transition"
+                className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-emerald-950 shadow-sm hover:bg-emerald-50 transition"
               >
                 <Phone className="h-4 w-4" />
                 Request a Demo
               </a>
               <a
                 href="tel:8921202909"
-                className="inline-flex items-center gap-2 rounded-xl border border-emerald-500 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-800 transition"
+                className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/70 px-6 py-3.5 text-sm font-semibold text-white hover:bg-emerald-800/60 transition"
               >
                 Contact Us
               </a>
@@ -794,7 +881,7 @@ export default function HomePage() {
                 href="https://wa.me/8921202909"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white hover:bg-emerald-500 transition"
+                className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-6 py-3.5 text-sm font-semibold text-white hover:bg-emerald-500 transition"
               >
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp Us
