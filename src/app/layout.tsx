@@ -3,9 +3,9 @@ import "./globals.css";
 import FirebaseAnalytics from "@/components/FirebaseAnalytics";
 
 export const metadata: Metadata = {
-  title: "AttendFlow SaaS — Multi-Tenant Attendance & Student Profile Platform",
+  title: "Madrasa Management System — Multi-Institution SaaS Platform",
   description:
-    "Modern SaaS attendance tracking for schools, academies, and madrasas. Teachers record attendance & manage student profiles; students track their records in real time.",
+    "Dedicated multi-institution SaaS platform for Madrasa administration. Simplify daily attendance, student profiles, class organization, and role-based institutional coordination.",
 };
 
 export default function RootLayout({
