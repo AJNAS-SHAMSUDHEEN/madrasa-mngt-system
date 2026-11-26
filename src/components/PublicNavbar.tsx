@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ClipboardCheck, Menu, X } from "lucide-react";
+import InstallAppButton from "@/components/InstallAppButton";
 
 const NAV_LINKS = [
   { href: "#why", label: "Why It Helps" },
@@ -39,7 +40,8 @@ export default function PublicNavbar() {
           ))}
         </nav>
 
-        <div className="hidden sm:flex items-center gap-2.5">
+        <div className="hidden sm:flex items-center gap-2">
+          <InstallAppButton variant="compact" label="Install App" />
           <Link
             href="/login"
             className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
@@ -78,7 +80,8 @@ export default function PublicNavbar() {
               </a>
             ))}
           </div>
-          <div className="flex gap-2 pt-2 border-t border-slate-100">
+          <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
+            <InstallAppButton variant="compact" label="Install App" className="w-full" />
             <Link
               href="/login"
               className="flex-1 text-center rounded-xl border border-slate-300 py-2 text-sm font-semibold text-slate-700"

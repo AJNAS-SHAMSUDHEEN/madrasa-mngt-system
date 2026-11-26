@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import PublicNavbar from "@/components/PublicNavbar";
 import FaqAccordion from "@/components/FaqAccordion";
+import InstallAppButton from "@/components/InstallAppButton";
 
 const FAQS = [
   {
@@ -82,6 +83,7 @@ export default function HomePage() {
                     <MessageCircle className="h-4 w-4 text-emerald-700" />
                     WhatsApp: 8921202909
                   </a>
+                  <InstallAppButton variant="outline" label="Install App" />
                 </div>
 
                 <p className="mt-4 text-xs text-slate-500">
@@ -362,6 +364,7 @@ export default function HomePage() {
                 <MessageCircle className="h-4 w-4" />
                 WhatsApp Us
               </a>
+              <InstallAppButton variant="dark" label="Download / Install App" />
             </div>
           </div>
         </section>

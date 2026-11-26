@@ -12,6 +12,7 @@ import {
   Building2,
 } from "lucide-react";
 import { signOutFirebase, type UserRole } from "@/lib/firestore-service";
+import InstallAppButton from "@/components/InstallAppButton";
 
 interface DashboardShellProps {
   userName: string;
@@ -140,18 +141,21 @@ export default function DashboardShell({
           </nav>
         </div>
 
-        <div className="p-4 border-t border-slate-100 flex items-center justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-slate-900 truncate">{userName}</p>
-            <p className="text-xs text-slate-500">{ROLE_LABELS[userRole]}</p>
+        <div className="p-4 border-t border-slate-100 space-y-3">
+          <InstallAppButton variant="compact" label="Install App" className="w-full" />
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-slate-900 truncate">{userName}</p>
+              <p className="text-xs text-slate-500">{ROLE_LABELS[userRole]}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              title="Sign out"
+              className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition cursor-pointer"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            title="Sign out"
-            className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-          </button>
         </div>
       </aside>
 
