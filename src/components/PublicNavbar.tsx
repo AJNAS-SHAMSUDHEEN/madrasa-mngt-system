@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { onAuthStateChanged } from "firebase/auth";
 import { ClipboardCheck, Menu, X } from "lucide-react";
 import InstallAppButton from "@/components/InstallAppButton";
+import { firebaseAuth } from "@/lib/firebase";
+import { getRoleDashboardPath, loadSessionForUid } from "@/lib/firestore-service";
 
 const NAV_LINKS = [
   { href: "#why", label: "Why It Helps" },
@@ -14,6 +17,21 @@ const NAV_LINKS = [
 
 export default function PublicNavbar() {
   const [open, setOpen] = useState(false);
+  const [dashboardHref, setDashboardHref] = useState<string | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (!user) {
+        setDashboardHref(null);
+        return;
+      }
+      const session = await loadSessionForUid(user.uid);
+      if (session) {
+        setDashboardHref(getRoleDashboardPath(session.user.role));
+      }
+    });
+    return () => unsub();
+  }, []);
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/90 backdrop-blur-md">
@@ -43,10 +61,10 @@ export default function PublicNavbar() {
         <div className="hidden sm:flex items-center gap-2">
           <InstallAppButton variant="compact" label="Install App" />
           <Link
-            href="/login"
+            href={dashboardHref || "/login"}
             className="rounded-xl px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 transition"
           >
-            Sign In
+            {dashboardHref ? "Open App" : "Sign In"}
           </Link>
           <a
             href="#contact"
@@ -83,10 +101,10 @@ export default function PublicNavbar() {
           <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100">
             <InstallAppButton variant="compact" label="Install App" className="w-full" />
             <Link
-              href="/login"
+              href={dashboardHref || "/login"}
               className="flex-1 text-center rounded-xl border border-slate-300 py-2 text-sm font-semibold text-slate-700"
             >
-              Sign In
+              {dashboardHref ? "Open App" : "Sign In"}
             </Link>
             <a
               href="#contact"

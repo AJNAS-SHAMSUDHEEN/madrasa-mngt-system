@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged } from "firebase/auth";
 import { ClipboardCheck, Loader2 } from "lucide-react";
-import { signInWithFirebase } from "@/lib/firestore-service";
+import { firebaseAuth } from "@/lib/firebase";
+import {
+  getRoleDashboardPath,
+  loadSessionForUid,
+  signInWithFirebase,
+} from "@/lib/firestore-service";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,6 +18,27 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [checkingSession, setCheckingSession] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (!user) {
+        setCheckingSession(false);
+        return;
+      }
+      try {
+        const session = await loadSessionForUid(user.uid);
+        if (session && (session.user.role === "super_admin" || session.tenant.status !== "suspended")) {
+          router.replace(getRoleDashboardPath(session.user.role));
+          return;
+        }
+      } catch {
+        // Fall back to login form
+      }
+      setCheckingSession(false);
+    });
+    return () => unsub();
+  }, [router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,7 +46,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const { redirectTo } = await signInWithFirebase(email, password);
-      router.push(redirectTo);
+      router.replace(redirectTo);
       router.refresh();
     } catch (err) {
       const msg =
@@ -29,19 +56,28 @@ export default function LoginPage() {
     }
   }
 
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-sm text-slate-600 gap-2">
+        <Loader2 className="h-4 w-4 animate-spin text-emerald-700" />
+        Opening your Madrasa workspace...
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
           <Link href="/" className="inline-flex items-center gap-2 font-bold text-xl text-slate-900">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-sm">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-700 text-white shadow-sm">
               <ClipboardCheck className="h-5 w-5" />
             </span>
-            AttendFlow SaaS
+            Madrasa Management
           </Link>
           <h1 className="mt-4 text-2xl font-bold text-slate-900">Sign in to your workspace</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Authenticated with Firebase Auth & Cloud Firestore.
+            You will stay signed in until you choose to log out.
           </p>
         </div>
 
@@ -86,7 +122,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-60 transition cursor-pointer"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-700 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-800 disabled:opacity-60 transition cursor-pointer"
           >
             {loading && <Loader2 className="h-4 w-4 animate-spin" />}
             Sign in
@@ -94,8 +130,8 @@ export default function LoginPage() {
 
           <p className="text-center text-xs text-slate-500 pt-1">
             New institution?{" "}
-            <Link href="/signup" className="font-semibold text-emerald-600 hover:underline">
-              Create a SaaS workspace
+            <Link href="/signup" className="font-semibold text-emerald-700 hover:underline">
+              Create a Madrasa workspace
             </Link>
           </p>
         </form>

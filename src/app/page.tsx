@@ -17,6 +17,7 @@ import {
 import PublicNavbar from "@/components/PublicNavbar";
 import FaqAccordion from "@/components/FaqAccordion";
 import InstallAppButton from "@/components/InstallAppButton";
+import AppLaunchRedirect from "@/components/AppLaunchRedirect";
 
 const FAQS = [
   {
@@ -44,6 +45,7 @@ const FAQS = [
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900 selection:bg-emerald-100 selection:text-emerald-900">
+      <AppLaunchRedirect />
       <PublicNavbar />
 
       <main className="flex-1">

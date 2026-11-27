@@ -1,7 +1,18 @@
 import { getApp, getApps, initializeApp, type FirebaseApp } from "firebase/app";
 import { getAnalytics, isSupported, type Analytics } from "firebase/analytics";
-import { getAuth, type Auth } from "firebase/auth";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import {
+  browserLocalPersistence,
+  getAuth,
+  setPersistence,
+  type Auth,
+} from "firebase/auth";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  type Firestore,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey:
@@ -28,7 +39,27 @@ export const firebaseApp: FirebaseApp = getApps().some((a) => a.name === "[DEFAU
   : initializeApp(firebaseConfig);
 
 export const firebaseAuth: Auth = getAuth(firebaseApp);
-export const firestoreDb: Firestore = getFirestore(firebaseApp);
+
+if (typeof window !== "undefined") {
+  void setPersistence(firebaseAuth, browserLocalPersistence).catch(() => {});
+}
+
+function createFirestore(): Firestore {
+  if (typeof window === "undefined") {
+    return getFirestore(firebaseApp);
+  }
+  try {
+    return initializeFirestore(firebaseApp, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch {
+    return getFirestore(firebaseApp);
+  }
+}
+
+export const firestoreDb: Firestore = createFirestore();
 
 export function getSecondaryAuth(): Auth {
   const existing = getApps().find((a) => a.name === "secondary-provisioner");
